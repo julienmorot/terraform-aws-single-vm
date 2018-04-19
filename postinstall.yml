@@ -1,0 +1,36 @@
+#cloud-config
+
+# Mise à jour des packages
+repo_update: true
+repo_upgrade: true
+
+disk_setup:
+   /dev/xvdb:
+       table_type: 'mbr'
+       layout:
+           - 100
+       overwrite: True
+
+fs_setup:
+   - label: www
+     filesystem: 'ext4'
+     device: '/dev/xvdb1'
+
+mounts:
+ - [ xvdb1, /var/www/, "auto", "defaults,nofail", "0", "0" ]
+
+packages:
+ - screen
+ - htop
+ - httpd
+
+runcmd:
+ - service httpd start
+ - chkconfig httpd on
+
+power_state:
+ delay: "now"
+ mode: reboot
+
+output : { all : '| tee -a /var/log/cloud-init-output.log' }
+
